@@ -1,14 +1,16 @@
 import { Collection } from "@mikro-orm/core";
 import { EntityRepository } from "@mikro-orm/knex";
 import { InjectRepository } from "@mikro-orm/nestjs";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { Cart, CartItem } from "../../entities";
 import { SumDeliveryItems } from "./interfaces";
 
 @Injectable()
 export class ShoppingCartService {
   constructor(
-    @InjectRepository(Cart) private readonly cartRepo: EntityRepository<Cart>
+    @InjectRepository(Cart) private readonly cartRepo: EntityRepository<Cart>,
+    @InjectRepository(CartItem)
+    private readonly cartItemRepo: EntityRepository<CartItem>
   ) {}
 
   async getById(id: Pick<Cart, "id">): Promise<Cart> {
@@ -22,16 +24,8 @@ export class ShoppingCartService {
     return cart;
   }
 
-  //   TODO: how to find single item in a collection
-  private async findCartItem(
-    cart: Cart,
-    itemId: number
-  ): Promise<Collection<CartItem, unknown>> {
-    const itemCollection = await cart.items.init({ where: { id: itemId } });
-    if (!itemCollection) {
-      throw new NotFoundException("Cart item was not found");
-    }
-    return itemCollection.getItems();
+  private async findCartItem(cart: Cart, itemId: number): Promise<CartItem> {
+    return this.cartItemRepo.findOneOrFail({ id: itemId, cart });
   }
 
   async remove(cartId: Pick<Cart, "id">, itemId: number): Promise<Cart> {
@@ -53,7 +47,7 @@ export class ShoppingCartService {
 
   async clear(cartId: Pick<Cart, "id">): Promise<Cart> {
     const cart = await this.getById(cartId);
-    cart.items = [];
+    cart.items.removeAll();
     this.cartRepo.flush();
     return cart;
   }

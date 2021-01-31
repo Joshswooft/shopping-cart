@@ -2,12 +2,10 @@ import {
   Entity,
   Index,
   ManyToOne,
-  OneToOne,
   PrimaryKey,
   Property,
 } from "@mikro-orm/core";
 import { Cart } from "./cart.entity";
-import { Product } from "./product.entity";
 
 @Entity()
 @Index({ properties: ["title"] })
@@ -26,9 +24,6 @@ export class CartItem {
 
   @Property()
   quantity: number;
-
-  @OneToOne(() => Product, (product) => product.id)
-  product: string;
 
   @ManyToOne()
   cart!: Cart;
