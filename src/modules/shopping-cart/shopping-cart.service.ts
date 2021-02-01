@@ -2,8 +2,16 @@ import { Collection } from "@mikro-orm/core";
 import { EntityRepository } from "@mikro-orm/knex";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import { Injectable } from "@nestjs/common";
+import * as assert from "assert";
 import { Cart, CartItem } from "../../entities";
+import { MCMKP } from "../../utils/knapsack";
 import { SumDeliveryItems } from "./interfaces";
+
+interface Item {
+  id: number;
+  weight: number;
+  deliveryDay: number;
+}
 
 @Injectable()
 export class ShoppingCartService {
@@ -56,62 +64,67 @@ export class ShoppingCartService {
     return (await this.cartRepo.findOneOrFail({ id: cartId })).items;
   }
 
-  async getItemsInSingleDelivery(
+  getItemsInSingleDelivery(
     ids: number[],
     weights: number[],
     deliveryDays: number[],
     capacity = 10
-  ): Promise<SumDeliveryItems> {
-    //   TODO: knap sack problem
-    // check for items > 9 and items < 1 as invalid
+  ): SumDeliveryItems {
+    try {
+      const n = ids.length;
+      assert.strictEqual(
+        deliveryDays.length,
+        weights.length,
+        `delivery days: ${deliveryDays.length} not equal to weights: ${
+          weights.length
+        }`
+      );
 
-    const n = ids.length;
-    if (
-      capacity == 0 ||
-      n == 0 ||
-      weights.length == 0 ||
-      deliveryDays.length == 0
-    ) {
-      return {
-        itemIds: [],
-        sumDeliveryDays: 0,
-      };
-    }
-
-    let matrix;
-    for (let i = 0; i < n; i++) {
-      const arr: number[] = Array(weights.length).fill(-1);
-      matrix[i].push(arr);
-    }
-
-    console.log("matrix: ", matrix);
-
-    for (let i = 0; i <= n; i++) {
-      for (let w = 0; w <= capacity; w++) {
-        if (i == 0 || w == 0) {
-          matrix[i][w] = 0;
-        }
-        if (weights[i - 1] <= w) {
-          matrix[i][w] = Math.max(
-            [i - 1] + matrix[i - 1][w - weights[i - 1]],
-            matrix[i - 1][w]
-          );
-        } else {
-          matrix[i][w] = matrix[i - 1][w];
-        }
+      if (
+        capacity == 0 ||
+        n == 0 ||
+        weights.length == 0 ||
+        deliveryDays.length == 0
+      ) {
+        return {
+          itemIds: [],
+          sumDeliveryDays: 0,
+        };
       }
+
+      const items: Item[] = [];
+      for (let i = 0; i < ids.length; i++) {
+        if (weights[i] > capacity || weights[i] < 1) {
+          continue;
+        }
+        items.push({
+          id: ids[i],
+          deliveryDay: deliveryDays[i],
+          weight: weights[i],
+        });
+      }
+
+      const d = items.map((i) => i.deliveryDay);
+      const w = items.map((i) => i.weight);
+
+      assert.strictEqual(
+        d.length,
+        w.length,
+        "Delivery days and weights are not the same size"
+      );
+
+      // TODO: we want to minimise delivery days not maximise
+      const { matrix, value, itemIds } = MCMKP(d, w);
+
+      // const itemsSelected = this.selectItemsFromKnapSack(matrix, items);
+
+      return {
+        itemIds,
+        sumDeliveryDays: value,
+      };
+    } catch (e) {
+      // TODO: replace with logger
+      console.error(e);
     }
-
-    const res: number = matrix[n][capacity];
-
-    console.log("res: ", res);
-
-    console.log("matrix after: ", matrix);
-
-    const result: SumDeliveryItems = {
-      itemIds: [1, 2],
-      sumDeliveryDays: 1,
-    };
-    return Promise.resolve(result);
   }
 }
