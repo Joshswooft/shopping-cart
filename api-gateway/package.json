@@ -1,8 +1,10 @@
 {
-  "name": "shopping-cart",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "name": "api-gateway",
+  "version": "1.0.0",
+  "description": "The API Gateway connecting client to internal micro-services",
+  "main": "main.js",
+  "repository": "https://github.com/Joshswooft/shopping-cart",
+  "author": "Joshua Dando",
   "license": "MIT",
   "scripts": {
     "build": "rimraf dist && tsc -p tsconfig.build.json",
@@ -19,10 +21,6 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@mikro-orm/core": "^4.4.0",
-    "@mikro-orm/nestjs": "^4.2.0",
-    "@mikro-orm/postgresql": "^4.4.0",
-    "@mikro-orm/reflection": "^4.4.0",
     "@nestjs/common": "^7.6.7",
     "@nestjs/config": "^0.6.2",
     "@nestjs/core": "^7.6.7",

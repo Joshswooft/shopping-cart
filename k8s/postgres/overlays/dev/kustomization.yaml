@@ -1,0 +1,6 @@
+resources:
+  - postgres.yaml
+  - service.yaml
+
+commonLabels:
+  app.kubernetes.io/name: postgres

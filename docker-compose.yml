@@ -1,9 +1,26 @@
 version: "3.1"
 
 services:
+  api-gateway:
+    image: "api-gateway:dev"
+    build:
+      context: "./api-gateway"
+    ports:
+      - 8000:8000
+    depends_on:
+      - "db"
+    environment:
+      NODE_ENV: "test"
+      PORT: 8000
+    healthcheck:
+      test: ["CMD", "wget", "localhost:3000/health -q -O - > /dev/null 2>&1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: "on-failure"
   db:
     image: postgres
-    restart: always
+    restart: "on-failure"
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -12,6 +29,11 @@ services:
       - postgres-data:/var/lib/postgres
     ports:
       - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "su -c 'pg_isready -U postgres' postgres"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
 
   adminer:
     image: adminer

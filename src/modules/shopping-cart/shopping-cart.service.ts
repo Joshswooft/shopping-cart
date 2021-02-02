@@ -3,6 +3,7 @@ import { EntityRepository } from "@mikro-orm/knex";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import { Injectable } from "@nestjs/common";
 import * as assert from "assert";
+import { CreateCartItemInput } from "src/inputs/cart/create-cart-item.input";
 import { Cart, CartItem } from "../../entities";
 import { MCMKP } from "../../utils/knapsack";
 import { SumDeliveryItems } from "./interfaces";
@@ -21,14 +22,15 @@ export class ShoppingCartService {
     private readonly cartItemRepo: EntityRepository<CartItem>
   ) {}
 
-  async getById(id: Pick<Cart, "id">): Promise<Cart> {
+  async getById(id: number): Promise<Cart> {
     return this.cartRepo.findOneOrFail(id);
   }
 
-  async add(cartId: Pick<Cart, "id">, item: CartItem): Promise<Cart> {
+  async add(item: CreateCartItemInput): Promise<Cart> {
+    const { cartId, ...cartItem } = item;
     const cart = await this.getById(cartId);
-    cart.items.add(item);
-    this.cartRepo.flush();
+    this.cartItemRepo.create(cartItem);
+    this.cartItemRepo.persistAndFlush(cartItem);
     return cart;
   }
 
@@ -36,10 +38,10 @@ export class ShoppingCartService {
     return this.cartItemRepo.findOneOrFail({ id: itemId, cart });
   }
 
-  async remove(cartId: Pick<Cart, "id">, itemId: number): Promise<Cart> {
+  async remove(cartId: number, itemId: number): Promise<boolean> {
     const cart = await this.getById(cartId);
     if (cart.items.length == 0) {
-      return cart;
+      return false;
     }
     const item = await this.findCartItem(cart, itemId);
     if (item) {
@@ -50,10 +52,10 @@ export class ShoppingCartService {
       //   ];
     }
     this.cartRepo.flush();
-    return cart;
+    return true;
   }
 
-  async clear(cartId: Pick<Cart, "id">): Promise<Cart> {
+  async clear(cartId: number): Promise<Cart> {
     const cart = await this.getById(cartId);
     cart.items.removeAll();
     this.cartRepo.flush();

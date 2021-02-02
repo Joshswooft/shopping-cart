@@ -5,11 +5,13 @@ import {
   PrimaryKey,
   Property,
 } from "@mikro-orm/core";
+import { AggregateRoot } from "@nestjs/cqrs";
+import { ICartItem } from "../model-interfaces";
 import { Cart } from "./cart.entity";
 
 @Entity()
 @Index({ properties: ["title"] })
-export class CartItem {
+export class CartItem extends AggregateRoot implements ICartItem {
   @PrimaryKey()
   id: number;
 
