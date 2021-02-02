@@ -1,0 +1,7 @@
+apiVersion: apps/v1
+kind: ConfigMap
+metadata:
+  name: postgres-configuration
+data:
+  POSTGRES_DB: "peak"
+  POSTGRES_USER: "user"

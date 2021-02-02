@@ -1,0 +1,45 @@
+apiVersion: skaffold/v2beta3
+kind: Config
+
+metadata:
+  name: shopping-cart
+
+build:
+  artifacts:
+    - image: shopping-cart
+
+deploy:
+  kustomize:
+    paths:
+      - "k8s/base"
+
+profiles:
+  - name: dev
+    activation:
+      - kubeContext: docker-desktop
+    build:
+      local:
+        useBuildkit: true
+      tagPolicy:
+        sha256: {}
+    deploy:
+      kustomize:
+        paths:
+          - k8s/overlays/dev
+  - name: debug
+    build:
+      artifacts:
+        - image: shopping-cart
+          docker:
+            target: debug
+    activation:
+      - command: debug
+portForward:
+  - resourceName: shopping-cart
+    resourceType: service
+    port: 80
+    localPort: 8001
+  - resourceName: postgres
+    resourceType: service
+    port: 5432
+    localPort: 5432

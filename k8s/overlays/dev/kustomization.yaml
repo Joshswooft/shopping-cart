@@ -1,0 +1,5 @@
+resources:
+  - ../../postgres/overlays/dev
+
+commonLabels:
+  app.kubernetes.io/part-of: shopping-cart

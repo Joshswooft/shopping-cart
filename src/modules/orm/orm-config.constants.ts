@@ -1,0 +1,1 @@
+export const ORM_CONFIG_OPTIONS = "ORM_CONFIG_OPTIONS";

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopping-cart
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shopping-cart
+  template:
+    metadata:
+      labels:
+        app: shopping-cart
+    spec:
+      containers:
+        - name: shopping-cart
+          image: shopping-cart
+          imagePullPolicy: Always
+          args:
+            - run
+            - --port=8001
+          ports:
+            - name: http
+              containerPort: 8001
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /etc/shopping-cart
+              name: config
+              readOnly: true
+      volumes:
+        - name: config
