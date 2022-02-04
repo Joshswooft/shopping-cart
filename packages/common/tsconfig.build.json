@@ -1,0 +1,16 @@
+{
+    "extends": "./tsconfig.json",
+    "exclude": ["node_modules", "test", "dist", "**/*spec.ts"],
+    "compilerOptions": {
+      "outDir": "dist",
+      "rootDir": "src",
+      "baseUrl": "./",
+      "declaration": true,
+      "declarationMap": true,
+      "emitDecoratorMetadata": true,
+      "esModuleInterop": true,
+      "module": "commonjs",
+      "composite": true
+    }
+  }
+  

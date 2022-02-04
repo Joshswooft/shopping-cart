@@ -4,7 +4,7 @@ services:
   api-gateway:
     image: "api-gateway:dev"
     build:
-      context: "./api-gateway"
+      context: "./packages/api-gateway"
     ports:
       - 8000:8000
     depends_on:

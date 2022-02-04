@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "declaration": false,
+    "outDir": "dist"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"],
+  "paths": {
+    "@carto/shopping-cart": ["../shopping-cart/*"]
+  },
+  "references": [{ "path": "../shopping-cart" }]
+}

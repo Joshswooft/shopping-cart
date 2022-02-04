@@ -15,8 +15,9 @@ Shopping cart microservice built using [Nest](https://github.com/nestjs/nest).
 
 The REST API acts as a API-Gateway/proxy for the shopping-cart microservice to be reached from public traffic.
 The controller of the gateway emits events using nests CQRS module. Each event is consumed by a handler where the information is then
-used by it's respective service which has injected the repository and commits the command. Once the command has been commited we link the event dispatcher to the messaging system to dispatch our event to the event store. When this change in state is gradually applied this is propagated to all
-subscribers in the read model. One of the problems with the database per service architecture is how do you combine multiple transactions into a single larger transaction?
+used by it's respective service which has injected the repository and commits the command. Once the command has been commited we link the event dispatcher to the messaging system to dispatch our event to the event store. When this change in state is gradually applied this is propagated to all subscribers in the read model. 
+
+One of the problems with the database per service architecture is how do you combine multiple transactions into a single larger transaction?
 
 For instance when a user buys something from a store that event may have to do multiple steps:
 
@@ -25,6 +26,8 @@ For instance when a user buys something from a store that event may have to do m
 - process order
 
 If any of these stages fail then our system is left out of sync. This is where the SAGA pattern shines as it attempts to provide ACD transactions. Upon failure we can either rollback or publish a compensating action.
+
+Note: The API Gateway would usually be in it's own repo as a standalone service but I've kept it all here for sake of completeness. Instead I've opted for a mono-repo style built using yarn workspaces and lerna to tie it together. 
 
 ## Design Patterns
 
@@ -60,20 +63,7 @@ $ cp .env.example .env
 This repository uses a Postgres database [image](https://hub.docker.com/_/postgres/).
 To start make sure you have docker installed and use `$ docker-compose up -d` to start the required containers.
 
-## Running the app
-
-```bash
-# development
-$ yarn start
-
-# watch mode
-$ yarn start:dev
-
-# production mode
-$ yarn start:prod
-```
-
-## Test
+## Testing
 
 ```bash
 # unit tests
@@ -85,11 +75,3 @@ $ yarn test:e2e
 # test coverage
 $ yarn test:cov
 ```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## License
-
-Nest is [MIT licensed](LICENSE).

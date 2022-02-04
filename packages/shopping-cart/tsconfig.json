@@ -1,0 +1,11 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "baseUrl": "./src",
+        "rootDir": "src"
+    },
+    "paths": {
+        "@carto/common": ["../common/*"]
+    },
+    "references": [{ "path": "../common" }]
+}

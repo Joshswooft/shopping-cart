@@ -6,6 +6,6 @@ ADD package.json /app/package.json
 
 RUN yarn
 
-ADD . /app
+ADD packages/shopping-cart/* /app
 
-CMD ["yarn" "start"]
+CMD ["yarn" "workspace @carto/shopping-cart start"]
